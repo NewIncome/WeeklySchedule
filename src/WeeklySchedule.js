@@ -4,18 +4,38 @@ const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
 const hours = Array.from({ length: 17 }, (_, i) => `${7 + i}:00`);
 
 export default function WeeklySchedule() {
-  const [modal, setModal] = useState({ open: false, day: "", hour: "", value: "" });
+  const [modal, setModal] = useState({
+    open: false,
+    day: "",
+    hour: "",
+    value: "",
+    color: "#60a5fa", // Tailwind blue-400
+  });
+
   const [schedule, setSchedule] = useState({});
 
   const openModal = (day, hour) => {
     const key = `${day}-${hour}`;
-    setModal({ open: true, day, hour, value: schedule[key] || "" });
+    const activity = schedule[key] || {};
+    setModal({
+      open: true,
+      day,
+      hour,
+      value: activity.value || "",
+      color: activity.color || "#60a5fa",
+    });
   };
 
   const handleSave = () => {
     const key = `${modal.day}-${modal.hour}`;
-    setSchedule({ ...schedule, [key]: modal.value });
-    setModal({ open: false, day: "", hour: "", value: "" });
+    setSchedule({
+      ...schedule,
+      [key]: {
+        value: modal.value,
+        color: modal.color,
+      },
+    });
+    setModal({ open: false, day: "", hour: "", value: "", color: "#60a5fa" });
   };
 
   return (
@@ -38,13 +58,15 @@ export default function WeeklySchedule() {
               <div className="text-sm text-gray-600">{hour}</div>
               {days.map((day) => {
                 const key = `${day}-${hour}`;
+                const activity = schedule[key];
                 return (
                   <div
                     key={key}
-                    className="bg-white rounded-full h-16 flex items-center justify-between px-4 shadow text-sm text-gray-700 cursor-pointer hover:ring-2 hover:ring-blue-400"
+                    style={{ backgroundColor: activity?.color || "#e0f2fe" }}
+                    className="rounded-full h-16 flex items-center justify-between px-4 shadow text-sm text-gray-700 cursor-pointer hover:ring-2 hover:ring-blue-400"
                     onClick={() => openModal(day, hour)}
                   >
-                    <span className="truncate">{schedule[key] || "Click to add"}</span>
+                    <span className="truncate">{activity?.value || "Click to add"}</span>
                     <input
                       type="checkbox"
                       className="form-checkbox text-blue-500"
@@ -73,10 +95,19 @@ export default function WeeklySchedule() {
               className="w-full border px-3 py-2 rounded mb-4"
               placeholder="Enter activity"
             />
+            <div className="flex items-center gap-3 mb-4">
+              <label className="text-sm text-gray-600">Color:</label>
+              <input
+                type="color"
+                value={modal.color}
+                onChange={(e) => setModal({ ...modal, color: e.target.value })}
+                className="w-10 h-6 border rounded"
+              />
+            </div>
             <div className="flex justify-end gap-2">
               <button
                 className="px-4 py-2 text-sm rounded bg-gray-200 hover:bg-gray-300"
-                onClick={() => setModal({ open: false, day: "", hour: "", value: "" })}
+                onClick={() => setModal({ open: false, day: "", hour: "", value: "", color: "#60a5fa" })}
               >
                 Cancel
               </button>
